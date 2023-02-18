@@ -7,10 +7,4 @@ export const Commands: Array<Command> = [
             comment.reply("!sinetest called!");
         },
     },
-    {
-        handler: "!sinerate",
-        command: (comment) => {
-            comment.reply("!sinerate called!");
-        },
-    },
 ];
