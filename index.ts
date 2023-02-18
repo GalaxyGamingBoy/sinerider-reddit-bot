@@ -24,7 +24,7 @@ const runCommand = (comment: Snoowrap.Comment) => {
 
 const listenForCommands = () => {
   // Get the new comments in the specified subreddit
-  r.getSubreddit('test')
+  r.getSubreddit(process.env.B_SUBREDDIT || '')
     .getNewComments()
     .then(newComments => {
       const newValidComments: Array<Snoowrap.Comment> = [];
