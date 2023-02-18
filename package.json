@@ -1,0 +1,17 @@
+{
+  "name": "sinerider-reddit-bot",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "botRun": "ts-node ./index.ts"
+  },
+  "author": "GalaxyGamingBoy",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "dotenv": "^16.0.3",
+    "snoowrap": "^1.23.0",
+    "ts-node": "^10.9.1"
+  }
+}
