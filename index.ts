@@ -12,14 +12,18 @@ const r = new Snoowrap({
 });
 
 const runCommand = (comment: Snoowrap.Comment) => {
+    // Loop through each command
     Commands.forEach((command) => {
+        // Check if the comment body contains the `command` handler
         if (comment.body.indexOf(command.handler) != -1) {
+            // Run the command in `command`
             command.command(comment);
         }
     });
 };
 
 const listenForCommands = () => {
+    // Get the new comments in the specified subreddit
     r.getSubreddit("test")
         .getNewComments()
         .then((newComments) => {
@@ -28,6 +32,7 @@ const listenForCommands = () => {
             // Get All Valid Comments
             newComments.forEach((comment) => {
                 Commands.forEach((command) => {
+                    // If the command body includes a handler then push it to `newValidComments`
                     if (comment.body.indexOf(command.handler) != 0) {
                         newValidComments.push(comment);
                     }
@@ -37,12 +42,16 @@ const listenForCommands = () => {
             // Filter the already replied once
             newValidComments.forEach((comment) => {
                 let hasPrevReplied = false;
+
+                // Check each reply
                 comment.replies.forEach((rep) => {
+                    // If a reply is authored by the bot username, then ignore it
                     if (rep.author.name == r.username) {
                         hasPrevReplied = true;
                     }
                 });
 
+                // If no previous reply, then run the command
                 if (!hasPrevReplied) {
                     runCommand(comment);
                 }
