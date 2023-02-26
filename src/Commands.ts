@@ -2,9 +2,9 @@ import {Command} from './types/Command';
 
 export const Commands: Array<Command> = [
   {
-    handler: '!sinetest',
+    handler: 'txt',
     command: comment => {
-      comment.reply('!sinetest called!');
+      comment.reply('Sinerider TXT command called');
     },
   },
 ];

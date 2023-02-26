@@ -1,6 +1,6 @@
 import * as dotenv from 'dotenv';
 import Snoowrap from 'snoowrap';
-import {Commands} from './src/Commands';
+import {Commands} from './Commands';
 dotenv.config();
 
 const r = new Snoowrap({
@@ -33,7 +33,10 @@ const listenForCommands = () => {
       newComments.forEach(comment => {
         Commands.forEach(command => {
           // If the command body includes a handler then push it to `newValidComments`
-          if (comment.body.indexOf(command.handler) !== 0) {
+          if (
+            comment.body.indexOf(command.handler) !== -1 &&
+            comment.body.indexOf('!sinerider') !== -1
+          ) {
             newValidComments.push(comment);
           }
         });
@@ -44,9 +47,8 @@ const listenForCommands = () => {
         let hasPrevReplied = false;
 
         // Check each reply
-        comment.replies.forEach(rep => {
-          // If a reply is authored by the bot username, then ignore it
-          if (rep.author.name === r.username) {
+        comment.replies.fetchAll().forEach(reply => {
+          if (reply.author.name === r.username) {
             hasPrevReplied = true;
           }
         });

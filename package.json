@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "botRun": "ts-node ./index.ts",
+    "botRun": "ts-node ./src/index.ts",
     "lint": "gts lint",
     "clean": "gts clean",
     "compile": "tsc",
@@ -22,8 +22,10 @@
     "ts-node": "^10.9.1"
   },
   "devDependencies": {
+    "@types/node": "^14.18.36",
+    "@types/request": "^2.48.8",
+    "dom": "^0.0.3",
     "gts": "^3.1.1",
-    "typescript": "~4.7.0",
-    "@types/node": "^14.11.2"
+    "typescript": "~4.7.0"
   }
 }
