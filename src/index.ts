@@ -1,7 +1,11 @@
 import * as dotenv from 'dotenv';
 import Snoowrap from 'snoowrap';
 import {Commands} from './Commands';
+import StringUtilities from './StringUtilities';
 dotenv.config();
+
+// eslint-disable-next-line prefer-const
+let repliedComments: Array<string> = [];
 
 const r = new Snoowrap({
   userAgent: process.env.R_USERAGENT || '',
@@ -15,10 +19,15 @@ const runCommand = (comment: Snoowrap.Comment) => {
   // Loop through each command
   Commands.forEach(command => {
     // Check if the comment body contains the `command` handler
-    if (comment.body.indexOf(command.handler) !== -1) {
-      // Run the command in `command`
-      command.command(comment);
-    }
+    // if (comment.body.indexOf(command.handler) !== -1) {
+    //   // Run the command in `command`
+    //   command.command(comment);
+    // }
+    comment.body.split(' ').forEach(str => {
+      if (StringUtilities.checkRegex(str, command.handler)) {
+        command.command(comment);
+      }
+    });
   });
 };
 
@@ -31,30 +40,16 @@ const listenForCommands = () => {
 
       // Get All Valid Comments
       newComments.forEach(comment => {
-        Commands.forEach(command => {
-          // If the command body includes a handler then push it to `newValidComments`
-          if (
-            comment.body.indexOf(command.handler) !== -1 &&
-            comment.body.indexOf('!sinerider') !== -1
-          ) {
-            newValidComments.push(comment);
-          }
-        });
+        // If the command body includes a handler then push it to `newValidComments`
+        if (comment.body.indexOf('!sinerider') !== -1) {
+          newValidComments.push(comment);
+        }
       });
 
       // Filter the already replied once
       newValidComments.forEach(comment => {
-        let hasPrevReplied = false;
-
-        // Check each reply
-        comment.replies.fetchAll().forEach(reply => {
-          if (reply.author.name === r.username) {
-            hasPrevReplied = true;
-          }
-        });
-
-        // If no previous reply, then run the command
-        if (!hasPrevReplied) {
+        if (repliedComments.indexOf(comment.id) === -1) {
+          repliedComments.push(comment.id);
           runCommand(comment);
         }
       });

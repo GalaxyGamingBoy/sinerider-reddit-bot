@@ -1,6 +1,6 @@
 import Snoowrap from 'snoowrap';
 
 export type Command = {
-  handler: string;
+  handler: RegExp;
   command: (comment: Snoowrap.Comment) => void;
 };
