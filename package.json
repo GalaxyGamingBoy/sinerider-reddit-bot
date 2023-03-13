@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "botRun": "ts-node ./src/index.ts",
+    "start": "ts-node ./src/index.ts",
     "lint": "gts lint",
     "clean": "gts clean",
     "compile": "tsc",
