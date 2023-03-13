@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "esbuild src/index.ts --bundle --minify --platform=node --packages=external --outfile=server.js && node server.js",
+    "build": "esbuild src/index.ts --bundle --minify --platform=node --packages=external --outfile=server.js",
+    "start": "node server.js",
+    "build:start": "npm run build && npm run start",
     "lint": "gts lint",
     "clean": "gts clean",
     "compile": "tsc",
