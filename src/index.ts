@@ -59,3 +59,5 @@ const listenForCommands = () => {
 setInterval(() => {
   listenForCommands();
 }, Number(process.env.B_CHECKDELAY) || 60000);
+
+console.log('Reddit Bot Started!');

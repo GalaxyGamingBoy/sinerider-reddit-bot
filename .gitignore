@@ -132,3 +132,4 @@ dist
 *.txt
 
 build/
+server.js
