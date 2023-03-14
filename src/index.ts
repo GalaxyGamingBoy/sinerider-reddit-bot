@@ -53,6 +53,9 @@ const listenForCommands = () => {
           runCommand(comment);
         }
       });
+    })
+    .catch(() => {
+      console.log('Connection failed... Is reddit down?');
     });
 };
 

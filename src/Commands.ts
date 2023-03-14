@@ -43,6 +43,14 @@ export const Commands: Array<Command> = [
               `Fail! :( You can try again! You go it. Review it [here](${url})`
             );
           }
+        })
+        .catch(e => {
+          comment.reply(
+            'Oh no! An error occured with the Scoring Server Connection!  You will need to comment again to retry'
+          );
+          console.log(
+            `Sinerider Scoring Server Error! For more diagnostics: ${e}`
+          );
         });
     },
   },
