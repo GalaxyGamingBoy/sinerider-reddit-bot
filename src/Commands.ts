@@ -17,7 +17,6 @@ export const Commands: Array<Command> = [
       const url =
         comment.body.match(RegExpLib.URL.regexp)![0] || 'https://sinerider.com';
       console.log('FOUND COMMENT' + comment.permalink);
-      console.log(`{level: ${url} } || ` + url);
       axios
         .post('https://sinerider-scoring.up.railway.app/score', {
           level: url,
