@@ -15,6 +15,7 @@ export const Commands: Array<Command> = [
     command: comment => {
       const url = comment.body.split(' ')[1];
       console.log('FOUND COMMENT' + comment.permalink);
+      console.log(process.env.S_SCORINGSERVER + '/score' + ' || ' + url);
       axios
         .post(
           process.env.S_SCORINGSERVER + '/score',
@@ -52,7 +53,7 @@ export const Commands: Array<Command> = [
             `Sinerider Scoring Server Error! For more diagnostics: ${e}`
           );
         });
-      console.log('FOUND COMMENT' + comment.permalink);
+      console.log('REPLIED TO' + comment.permalink);
     },
   },
 ];
