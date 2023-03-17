@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import {Command} from './types/Command';
 import {RegExpLib} from './RegExpLib';
 import axios from 'axios';
@@ -15,12 +16,12 @@ export const Commands: Array<Command> = [
     command: comment => {
       const url = comment.body.split(' ')[1];
       console.log('FOUND COMMENT' + comment.permalink);
+      console.log(`{level: ${url} } || ` + url);
       axios
         .post('https://sinerider-scoring.up.railway.app/score', {
           level: url,
         })
         .then(response => {
-          console.log(`{level: ${url} } || ` + url);
           if (response.data.success === true) {
             if (response.data.gameplay === '') {
               comment.reply(
@@ -36,15 +37,15 @@ export const Commands: Array<Command> = [
               `Fail! :( You can try again! You go it. Review it [here](${url})`
             );
           }
-        })
-        .catch(e => {
-          comment.reply(
-            'Oh no! An error occured with the Scoring Server Connection!  You will need to comment again to retry'
-          );
-          console.log(
-            `Sinerider Scoring Server Error! For more diagnostics: ${e}`
-          );
         });
+      // .catch(e => {
+      //   comment.reply(
+      //     'Oh no! An error occured with the Scoring Server Connection!  You will need to comment again to retry'
+      //   );
+      //   console.log(
+      //     `Sinerider Scoring Server Error! For more diagnostics: ${e}`
+      //   );
+      // });
       console.log('REPLIED TO' + comment.permalink);
     },
   },
