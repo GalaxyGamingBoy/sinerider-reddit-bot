@@ -14,7 +14,7 @@ export const Commands: Array<Command> = [
     handler: RegExpLib.URL.regexp,
     command: comment => {
       const url = comment.body.split(' ')[1];
-      console.log('REPLYING TO COMMENT: ' + comment.permalink);
+      console.log('FOUND COMMENT' + comment.permalink);
       axios
         .post(
           process.env.S_SCORINGSERVER + '/score',
@@ -52,6 +52,7 @@ export const Commands: Array<Command> = [
             `Sinerider Scoring Server Error! For more diagnostics: ${e}`
           );
         });
+      console.log('FOUND COMMENT' + comment.permalink);
     },
   },
 ];
