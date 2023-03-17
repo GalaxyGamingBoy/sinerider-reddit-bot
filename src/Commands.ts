@@ -16,15 +16,9 @@ export const Commands: Array<Command> = [
       const url = comment.body.split(' ')[1];
       console.log('FOUND COMMENT' + comment.permalink);
       axios
-        .post(
-          process.env.S_SCORINGSERVER + '/score',
-          {level: 'https://sinerider.com'},
-          {
-            headers: {
-              'User-Agent': 'redditbot',
-            },
-          }
-        )
+        .post('https://sinerider-scoring.up.railway.app/score', {
+          level: url,
+        })
         .then(response => {
           if (response.data.success === true) {
             if (response.data.gameplay === '') {
