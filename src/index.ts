@@ -54,8 +54,10 @@ const listenForCommands = () => {
         }
       });
     })
-    .catch(() => {
-      console.log('Connection failed... Is reddit down?');
+    .catch(e => {
+      console.log(
+        'Connection failed... Is reddit down? Further analysis: ' + e
+      );
     });
 };
 
