@@ -20,6 +20,7 @@ export const Commands: Array<Command> = [
           level: url,
         })
         .then(response => {
+          console.log(`{level: ${url} } || ` + url);
           if (response.data.success === true) {
             if (response.data.gameplay === '') {
               comment.reply(
