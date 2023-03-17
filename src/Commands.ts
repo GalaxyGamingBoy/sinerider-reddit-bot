@@ -15,13 +15,10 @@ export const Commands: Array<Command> = [
     command: comment => {
       const url = comment.body.split(' ')[1];
       console.log('FOUND COMMENT' + comment.permalink);
-      console.log(process.env.S_SCORINGSERVER + '/score' + ' || ' + url);
       axios
         .post(
           process.env.S_SCORINGSERVER + '/score',
-          {
-            level: url,
-          },
+          {level: 'https://sinerider.com'},
           {
             headers: {
               'User-Agent': 'redditbot',
