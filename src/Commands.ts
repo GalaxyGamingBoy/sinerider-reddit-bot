@@ -14,7 +14,8 @@ export const Commands: Array<Command> = [
   {
     handler: RegExpLib.URL.regexp,
     command: comment => {
-      const url = comment.body.split(' ')[1];
+      const url =
+        comment.body.match(RegExpLib.URL.regexp)![0] || 'https://sinerider.com';
       console.log('FOUND COMMENT' + comment.permalink);
       console.log(`{level: ${url} } || ` + url);
       axios
