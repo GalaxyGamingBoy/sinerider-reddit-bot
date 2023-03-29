@@ -5,13 +5,10 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "esbuild src/index.ts --bundle --minify --platform=node --packages=external --outfile=server.js",
-    "start": "node server.js",
-    "build:start": "npm run build && npm run start",
-    "lint": "gts lint",
-    "clean": "gts clean",
-    "compile": "tsc",
-    "fix": "gts fix"
+    "build": "npx tsc",
+    "start": "node dist/index.js",
+    "debug": "node --nolazy --inspect-brk=5858 dist/index.js",
+    "build:start": "npm run build && npm run start"
   },
   "author": "GalaxyGamingBoy",
   "license": "UNLICENSED",
