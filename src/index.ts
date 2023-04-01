@@ -1,6 +1,6 @@
 import * as dotenv from 'dotenv';
 import Snoowrap from 'snoowrap';
-import {Commands} from './Commands';
+import { Commands } from './Commands';
 import StringUtilities from './StringUtilities';
 dotenv.config();
 
