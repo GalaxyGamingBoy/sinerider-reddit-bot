@@ -1,7 +1,16 @@
+/* eslint-disable eqeqeq */
 import * as dotenv from 'dotenv';
 import Snoowrap from 'snoowrap';
+// eslint-disable-next-line prettier/prettier
 import { Commands } from './Commands';
 import StringUtilities from './StringUtilities';
+import passport from 'passport';
+import { BasicStrategy } from 'passport-http';
+import express from 'express';
+import CORS from 'cors';
+import bodyParser from 'body-parser';
+import { RegExpLib } from './RegExpLib';
+
 dotenv.config();
 
 // eslint-disable-next-line prefer-const
@@ -18,11 +27,6 @@ const r = new Snoowrap({
 const runCommand = (comment: Snoowrap.Comment) => {
   // Loop through each command
   Commands.forEach(command => {
-    // Check if the comment body contains the `command` handler
-    // if (comment.body.indexOf(command.handler) !== -1) {
-    //   // Run the command in `command`
-    //   command.command(comment);
-    // }
     comment.body.split(' ').forEach(str => {
       if (StringUtilities.checkRegex(str, command.handler)) {
         command.command(comment);
@@ -60,6 +64,77 @@ const listenForCommands = () => {
       );
     });
 };
+
+const addNewDailyLevel = (
+  title: string,
+  body: string,
+  levelName: string,
+  url: string
+) => {
+  // Get Daily Level Sticky & Remove it
+  r.getSubreddit(process.env.B_SUBREDDIT || '')
+    .getSticky()
+    .then(sticky => {
+      if (sticky.title.startsWith('Daily Level')) {
+        sticky.unsticky();
+      }
+    });
+
+  // Post New Daily Level Sticky
+  r.getSubreddit(process.env.B_SUBREDDIT || '')
+    .submitSelfpost({
+      title: `Daily Level | ${title} | ${levelName}`,
+      text: `${body}  [Play it here](${url})`,
+      subredditName: process.env.B_SUBREDDIT || '',
+    })
+    .then(post => post.sticky());
+};
+
+const app = express();
+
+app.use(CORS());
+app.use(bodyParser.json());
+passport.use(
+  new BasicStrategy((username, password, done) => {
+    if (
+      username == 'hackclub' &&
+      password == process.env.SINERIDER_API_SECRET
+    ) {
+      return done(null, 'hackclub');
+    } else {
+      // Error
+      return done(null, false);
+    }
+  })
+);
+
+app.post(
+  '/postDaily',
+  // eslint-disable-next-line prettier/prettier
+  passport.authenticate('basic', { session: false }),
+  (req, res) => {
+    if (
+      RegExpLib.URL.regexp.test(req.body.url) &&
+      req.body.body &&
+      req.body.title &&
+      req.body.levelName
+    ) {
+      addNewDailyLevel(
+        req.body.title,
+        req.body.body,
+        req.body.levelName,
+        req.body.url
+      );
+    }
+    res.end('OK!');
+  }
+);
+
+app.listen(process.env.EXPRESS_PORT || 3000, () => {
+  console.log(
+    `Doing magic in port ${process.env.EXPRESS_PORT || 3000}, Have fun!`
+  );
+});
 
 setInterval(() => {
   listenForCommands();
