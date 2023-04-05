@@ -2,6 +2,9 @@
 import { Command } from './types/Command';
 import { RegExpLib } from './RegExpLib';
 import axios from 'axios';
+import { replyWithGameplay, replyWithoutGameplay } from './Replies';
+import { airtableSetup } from './AirtableIntegration';
+const markdownLinkExtractor = require('markdown-link-extractor');
 
 export const Commands: Array<Command> = [
   {
@@ -14,39 +17,77 @@ export const Commands: Array<Command> = [
   {
     handler: RegExpLib.URL.regexp,
     command: comment => {
-      comment.body.split(' ').forEach(s => {
-        if (s.match(RegExpLib.URL.regexp)) {
-          const url = s.match(RegExpLib.URL.regexp)[0];
+      let cached = false;
+      comment.body.split(' ').forEach(str => {
+        // Get link from comment markdown
+        const { links } = markdownLinkExtractor(str);
+
+        // If there is a link and it matches the URL regex
+        if (links.length > 0 && links[0].match(RegExpLib.URL.regexp)) {
+          // Get the link
+          const url = links[0].match(RegExpLib.URL.regexp)[0];
           console.log('FOUND COMMENT' + comment.permalink);
-          axios
-            .post(`${process.env.S_SCORINGSERVER}/score`, {
-              level: url,
-            })
-            .then(response => {
-              if (response.data.success === true) {
-                if (response.data.gameplay === '') {
-                  comment.reply(
-                    `Success! You did it! Here is your stats: Level: ${response.data.level}, T: ${response.data.T}, CharCount: ${response.data.charCount}. Play it [here](${url})`
-                  );
-                } else {
-                  comment.reply(
-                    `Success! You did it! Here is your stats: Level: ${response.data.level}, T: ${response.data.T}, CharCount: ${response.data.charCount}. Watch it [here](${response.data.gameplay}) or play it [here](${url})`
-                  );
-                }
-              } else {
-                comment.reply(
-                  `Fail! :( You can try again! You go it. Review it [here](${url})`
-                );
+
+          // Check if the url is on the database
+          airtableSetup('Leaderboard').select({ filterByFormula: `playURL = '${url}'`, maxRecords: 1 }).eachPage(
+            (records, fetchNextPage) => {
+              records.forEach(record => {
+                cached = true;
+                replyWithGameplay(comment, record.get('level').toString(), record.get('T').toString(), record.get('charCount').toString(), record.get('playURL').toString(), record.get('gameplay').toString())
+                airtableSetup('Leaderboard').create({
+                  'expression': record.get('expression'),
+                  'T': record.get('T'),
+                  'level': record.get('level'),
+                  'playURL': record.get('playURL'),
+                  'charCount': record.get('charCount'),
+                  'gameplay': record.get('gameplay'),
+                  'player': comment.author.name
+                });
+              });
+              fetchNextPage();
+            },
+            err => {
+              if (err) {
+                console.log(err);
+                return;
               }
-            })
-            .catch(e => {
-              comment.reply(
-                'Oh no! An error occured with the Scoring Server Connection!  You will need to comment again to retry'
-              );
-              console.log(
-                `Sinerider Scoring Server Error! For more diagnostics: ${e}`
-              );
-            });
+            }
+          );
+
+          // Send the level to the scoring server
+          if (!cached) {
+            axios
+              .post(`${process.env.S_SCORINGSERVER}/score`, {
+                level: url,
+              })
+              .then(response => {
+                // If there is no gameplay, reply without it
+                if (response.data.gameplay === '') {
+                  replyWithoutGameplay(comment, response.data.level, response.data.T, response.data.charCount, url)
+                } else {
+                  replyWithGameplay(comment, response.data.level, response.data.T, response.data.charCount, url, response.data.gameplay)
+                }
+
+                // Upload Leaderboard data
+                airtableSetup('Leaderboard').create({
+                  'expression': response.data.expression,
+                  'T': response.data.T,
+                  'level': response.data.level,
+                  'playURL': url,
+                  'charCount': response.data.charCount,
+                  'gameplay': response.data.gameplay,
+                  'player': comment.author.name
+                });
+              })
+              .catch(e => {
+                comment.reply(
+                  'Oh no! An error occured with the Scoring Server Connection!  You will need to comment again to retry'
+                );
+                console.log(
+                  `Sinerider Scoring Server Error! For more diagnostics: ${e}`
+                );
+              });
+          }
           console.log('REPLIED TO: ' + comment.permalink);
         }
       })

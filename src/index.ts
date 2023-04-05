@@ -12,6 +12,8 @@ import CORS from 'cors';
 import bodyParser from 'body-parser';
 // eslint-disable-next-line prettier/prettier
 import { airtableSetup } from './AirtableIntegration';
+// eslint-disable-next-line prettier/prettier
+import { RegExpLib } from './RegExpLib';
 
 dotenv.config();
 
@@ -42,6 +44,7 @@ const listenForCommands = () => {
     .eachPage(
       (records, fetchNextPage) => {
         records.forEach(record => {
+          // Add the id of the replied comment
           repliedComments.push(record.get('id').toString());
         });
         fetchNextPage();
@@ -134,7 +137,7 @@ app.post(
   passport.authenticate('basic', { session: false }),
   (req, res) => {
     if (
-      // RegExpLib.URL.regexp.test(req.body.url) &&
+      RegExpLib.URL.regexp.test(req.body.url) &&
       req.body.body &&
       req.body.title &&
       req.body.levelName
@@ -156,8 +159,9 @@ app.listen(process.env.EXPRESS_PORT || 3000, () => {
   );
 });
 
-setInterval(() => {
-  listenForCommands();
-}, Number(process.env.B_CHECKDELAY) || 60000);
+// setInterval(() => {
+//   listenForCommands();
+// }, Number(process.env.B_CHECKDELAY) || 60000);
+listenForCommands();
 
 console.log('Reddit Bot Started!');
