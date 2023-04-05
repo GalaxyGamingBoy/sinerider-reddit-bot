@@ -5,16 +5,15 @@ import Snoowrap from 'snoowrap';
 import { Commands } from './Commands';
 import StringUtilities from './StringUtilities';
 import passport from 'passport';
+// eslint-disable-next-line prettier/prettier
 import { BasicStrategy } from 'passport-http';
 import express from 'express';
 import CORS from 'cors';
 import bodyParser from 'body-parser';
-import { RegExpLib } from './RegExpLib';
+// eslint-disable-next-line prettier/prettier
+import { airtableSetup } from './AirtableIntegration';
 
 dotenv.config();
-
-// eslint-disable-next-line prefer-const
-let repliedComments: Array<string> = [];
 
 const r = new Snoowrap({
   userAgent: process.env.R_USERAGENT || '',
@@ -36,11 +35,31 @@ const runCommand = (comment: Snoowrap.Comment) => {
 };
 
 const listenForCommands = () => {
+  // eslint-disable-next-line prefer-const
+  let repliedComments: Array<string> = [];
+  airtableSetup('RedditCheckedID')
+    .select()
+    .eachPage(
+      (records, fetchNextPage) => {
+        records.forEach(record => {
+          repliedComments.push(record.get('id').toString());
+        });
+        fetchNextPage();
+      },
+      err => {
+        if (err) {
+          console.log(err);
+          return;
+        }
+      }
+    );
+
   // Get the new comments in the specified subreddit
   r.getSubreddit(process.env.B_SUBREDDIT || '')
     .getNewComments()
     .then(newComments => {
-      const newValidComments: Array<Snoowrap.Comment> = [];
+      // eslint-disable-next-line prefer-const
+      let newValidComments: Array<Snoowrap.Comment> = [];
 
       // Get All Valid Comments
       newComments.forEach(comment => {
@@ -53,7 +72,8 @@ const listenForCommands = () => {
       // Filter the already replied once
       newValidComments.forEach(comment => {
         if (repliedComments.indexOf(comment.id) === -1) {
-          repliedComments.push(comment.id);
+          // eslint-disable-next-line prettier/prettier
+          airtableSetup('RedditCheckedID').create({ id: comment.id });
           runCommand(comment);
         }
       });
@@ -114,7 +134,7 @@ app.post(
   passport.authenticate('basic', { session: false }),
   (req, res) => {
     if (
-      RegExpLib.URL.regexp.test(req.body.url) &&
+      // RegExpLib.URL.regexp.test(req.body.url) &&
       req.body.body &&
       req.body.title &&
       req.body.levelName
