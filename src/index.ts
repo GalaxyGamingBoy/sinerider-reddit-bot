@@ -30,7 +30,7 @@ const runCommand = (comment: Snoowrap.Comment) => {
   Commands.forEach(command => {
     comment.body.split(' ').forEach(str => {
       if (StringUtilities.checkRegex(str, command.handler)) {
-        command.command(comment);
+        command.command(comment, command.command);
       }
     });
   });
@@ -74,6 +74,9 @@ const listenForCommands = () => {
 
       // Filter the already replied once
       newValidComments.forEach(comment => {
+        // console.log(
+        //   `${repliedComments} | ${repliedComments.indexOf(comment.id) === -1}`
+        // );
         if (repliedComments.indexOf(comment.id) === -1) {
           // eslint-disable-next-line prettier/prettier
           airtableSetup('RedditCheckedID').create({ id: comment.id });
@@ -159,9 +162,9 @@ app.listen(process.env.EXPRESS_PORT || 3000, () => {
   );
 });
 
-// setInterval(() => {
-//   listenForCommands();
-// }, Number(process.env.B_CHECKDELAY) || 60000);
-listenForCommands();
+setInterval(() => {
+  console.log('Checking for new comments...');
+  listenForCommands();
+}, Number(process.env.B_CHECKDELAY) || 60000);
 
 console.log('Reddit Bot Started!');

@@ -4,6 +4,8 @@ import { RegExpLib } from './RegExpLib';
 import axios from 'axios';
 import { replyWithGameplay, replyWithoutGameplay } from './Replies';
 import { airtableSetup } from './AirtableIntegration';
+import https from 'node:https'
+
 const markdownLinkExtractor = require('markdown-link-extractor');
 
 export const Commands: Array<Command> = [
@@ -16,7 +18,7 @@ export const Commands: Array<Command> = [
   },
   {
     handler: RegExpLib.URL.regexp,
-    command: comment => {
+    command: (comment, cmd) => {
       let cached = false;
       comment.body.split(' ').forEach(str => {
         // Get link from comment markdown
@@ -59,7 +61,10 @@ export const Commands: Array<Command> = [
             axios
               .post(`${process.env.S_SCORINGSERVER}/score`, {
                 level: url,
-              })
+              },
+                {
+                  httpsAgent: new https.Agent({ rejectUnauthorized: false })
+                })
               .then(response => {
                 // If there is no gameplay, reply without it
                 if (response.data.gameplay === '') {
@@ -80,12 +85,16 @@ export const Commands: Array<Command> = [
                 });
               })
               .catch(e => {
-                comment.reply(
-                  'Oh no! An error occured with the Scoring Server Connection!  You will need to comment again to retry'
-                );
-                console.log(
-                  `Sinerider Scoring Server Error! For more diagnostics: ${e}`
-                );
+                if (e.response.status === 408) {
+                  setTimeout(cmd(), 30000);
+                } else {
+                  comment.reply(
+                    'Oh no! An error occured with the Scoring Server Connection!  You will need to comment again to retry'
+                  );
+                  console.log(
+                    `Sinerider Scoring Server Error! For more diagnostics: ${e}`
+                  );
+                }
               });
           }
           console.log('REPLIED TO: ' + comment.permalink);
