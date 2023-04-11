@@ -36,16 +36,19 @@ const runCommand = (comment: Snoowrap.Comment) => {
   });
 };
 
+// eslint-disable-next-line prefer-const
+let repliedComments: Set<String> = new Set();
+
 const listenForCommands = () => {
-  // eslint-disable-next-line prefer-const
-  let repliedComments: Set<String>;
   airtableSetup('RedditCheckedID')
     .select()
     .eachPage(
       (records, fetchNextPage) => {
         records.forEach(record => {
           // Add the id of the replied comment
-          repliedComments.add(record.get('id').toString());
+          if (!repliedComments.has(record.get('id').toString())) {
+            repliedComments.add(record.get('id').toString());
+          }
         });
         fetchNextPage();
       },
@@ -74,7 +77,7 @@ const listenForCommands = () => {
 
       // Filter the already replied once
       newValidComments.forEach(comment => {
-        if (repliedComments.has(comment.id)) {
+        if (!repliedComments.has(comment.id)) {
           // eslint-disable-next-line prettier/prettier
           airtableSetup('RedditCheckedID').create({ id: comment.id });
           runCommand(comment);
