@@ -19,7 +19,7 @@ export const Commands: Array<Command> = [
   {
     handler: RegExpLib.URL.regexp,
     command: (comment, cmd) => {
-      let cached = false;
+      let cached = true;
       comment.body.split(' ').forEach(str => {
         // Get link from comment markdown
         const { links } = markdownLinkExtractor(str);
@@ -33,10 +33,11 @@ export const Commands: Array<Command> = [
           // Check if the url is on the database
           airtableSetup('Leaderboard').select({ filterByFormula: `playURL = '${url}'`, maxRecords: 1 }).eachPage(
             (records, fetchNextPage) => {
-              records.forEach(record => {
-                cached = true;
+              if (records.length > 0) {
                 comment.reply('Woops! Someone already submitted that solution to the leaderboards!')
-              });
+              } else {
+                cached = false
+              }
               fetchNextPage();
             },
             err => {
