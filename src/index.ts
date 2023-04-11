@@ -80,6 +80,7 @@ const listenForCommands = () => {
         if (!repliedComments.has(comment.id)) {
           // eslint-disable-next-line prettier/prettier
           airtableSetup('RedditCheckedID').create({ id: comment.id });
+          repliedComments.add(comment.id);
           runCommand(comment);
         }
       });
