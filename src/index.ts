@@ -80,7 +80,7 @@ const listenForCommands = () => {
         if (repliedComments.indexOf(comment.id) === -1) {
           // eslint-disable-next-line prettier/prettier
           airtableSetup('RedditCheckedID').create({ id: comment.id });
-          runCommand(comment);
+          // runCommand(comment);
         }
       });
     })
@@ -152,7 +152,7 @@ app.post(
         req.body.url
       );
     }
-    res.end('OK!');
+    res.status(200).end('OK!');
   }
 );
 

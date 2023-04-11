@@ -35,16 +35,7 @@ export const Commands: Array<Command> = [
             (records, fetchNextPage) => {
               records.forEach(record => {
                 cached = true;
-                replyWithGameplay(comment, record.get('level').toString(), record.get('T').toString(), record.get('charCount').toString(), record.get('playURL').toString(), record.get('gameplay').toString())
-                airtableSetup('Leaderboard').create({
-                  'expression': record.get('expression'),
-                  'T': record.get('T'),
-                  'level': record.get('level'),
-                  'playURL': record.get('playURL'),
-                  'charCount': record.get('charCount'),
-                  'gameplay': record.get('gameplay'),
-                  'player': comment.author.name
-                });
+                comment.reply('Woops! Someone already submitted that solution to the leaderboards!')
               });
               fetchNextPage();
             },
@@ -76,7 +67,7 @@ export const Commands: Array<Command> = [
                 // Upload Leaderboard data
                 airtableSetup('Leaderboard').create({
                   'expression': response.data.expression,
-                  'T': response.data.T,
+                  'time': response.data.T,
                   'level': response.data.level,
                   'playURL': url,
                   'charCount': response.data.charCount,
@@ -85,16 +76,12 @@ export const Commands: Array<Command> = [
                 });
               })
               .catch(e => {
-                if (e.response.status === 408) {
-                  setTimeout(cmd(), 30000);
-                } else {
-                  comment.reply(
-                    'Oh no! An error occured with the Scoring Server Connection!  You will need to comment again to retry'
-                  );
-                  console.log(
-                    `Sinerider Scoring Server Error! For more diagnostics: ${e}`
-                  );
-                }
+                comment.reply(
+                  'Oh no! An error occured with the Scoring Server Connection!  You will need to comment again to retry'
+                );
+                console.log(
+                  `Sinerider Scoring Server Error! For more diagnostics: ${e}`
+                );
               });
           }
           console.log('REPLIED TO: ' + comment.permalink);
