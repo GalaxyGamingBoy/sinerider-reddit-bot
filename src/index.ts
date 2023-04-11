@@ -38,14 +38,14 @@ const runCommand = (comment: Snoowrap.Comment) => {
 
 const listenForCommands = () => {
   // eslint-disable-next-line prefer-const
-  let repliedComments: Array<string> = [];
+  let repliedComments: Set<String>;
   airtableSetup('RedditCheckedID')
     .select()
     .eachPage(
       (records, fetchNextPage) => {
         records.forEach(record => {
           // Add the id of the replied comment
-          repliedComments.push(record.get('id').toString());
+          repliedComments.add(record.get('id').toString());
         });
         fetchNextPage();
       },
@@ -74,7 +74,7 @@ const listenForCommands = () => {
 
       // Filter the already replied once
       newValidComments.forEach(comment => {
-        if (repliedComments.indexOf(comment.id) == -1) {
+        if (repliedComments.has(comment.id)) {
           // eslint-disable-next-line prettier/prettier
           airtableSetup('RedditCheckedID').create({ id: comment.id });
           runCommand(comment);
