@@ -2,8 +2,7 @@
 import * as dotenv from 'dotenv';
 import Snoowrap from 'snoowrap';
 // eslint-disable-next-line prettier/prettier
-import { Commands } from './Commands';
-import StringUtilities from './StringUtilities';
+import { runCommand } from './Commands';
 import passport from 'passport';
 // eslint-disable-next-line prettier/prettier
 import { BasicStrategy } from 'passport-http';
@@ -24,17 +23,6 @@ const r = new Snoowrap({
   username: process.env.R_USERNAME || '',
   clientSecret: process.env.R_SECRET || '',
 });
-
-const runCommand = (comment: Snoowrap.Comment) => {
-  // Loop through each command
-  Commands.forEach(command => {
-    comment.body.split(' ').forEach(str => {
-      if (StringUtilities.checkRegex(str, command.handler)) {
-        command.command(comment, command.command);
-      }
-    });
-  });
-};
 
 // eslint-disable-next-line prefer-const
 let repliedComments: Set<String> = new Set();
@@ -64,20 +52,14 @@ const listenForCommands = () => {
   r.getSubreddit(process.env.B_SUBREDDIT || '')
     .getNewComments()
     .then(newComments => {
-      // eslint-disable-next-line prefer-const
-      let newValidComments: Array<Snoowrap.Comment> = [];
-
       // Get All Valid Comments
       newComments.forEach(comment => {
         // If the command body includes a handler then push it to `newValidComments`
-        if (comment.body.indexOf('!sinerider') !== -1) {
-          newValidComments.push(comment);
-        }
-      });
-
-      // Filter the already replied once
-      newValidComments.forEach(comment => {
-        if (!repliedComments.has(comment.id)) {
+        if (
+          comment.body.indexOf('#sinerider') !== -1 &&
+          !repliedComments.has(comment.id)
+        ) {
+          console.log(comment.body);
           // eslint-disable-next-line prettier/prettier
           airtableSetup('RedditCheckedID').create({ id: comment.id });
           repliedComments.add(comment.id);
@@ -163,9 +145,10 @@ app.listen(process.env.EXPRESS_PORT || 3000, () => {
   );
 });
 
-setInterval(() => {
-  console.log('Checking for new comments...');
-  listenForCommands();
-}, Number(process.env.B_CHECKDELAY) || 60000);
+// setInterval(() => {
+//   console.log('Checking for new comments...');
+//   listenForCommands();
+// }, Number(process.env.B_CHECKDELAY) || 60000);
+listenForCommands();
 
 console.log('Reddit Bot Started!');
