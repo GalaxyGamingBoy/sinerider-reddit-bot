@@ -74,7 +74,12 @@ const listenForCommands = () => {
     });
 };
 
-const addNewDailyLevel = (title: string, desc: string, url: string, puzzleID: string) => {
+const addNewDailyLevel = (
+  title: string,
+  desc: string,
+  url: string,
+  puzzleID: string
+) => {
   // Get Daily Level Sticky & Remove it
   r.getSubreddit(process.env.B_SUBREDDIT || '')
     .getSticky()
@@ -150,16 +155,34 @@ app.post(
   }
 );
 
-app.listen(process.env.EXPRESS_PORT || 3000, () => {
-  console.log(
-    `Doing magic in port ${process.env.EXPRESS_PORT || 3000}, Have fun!`
-  );
-});
+const pollReddit = () => {
+  setInterval(() => {
+    console.log('Checking for new comments...');
+    listenForCommands();
+  }, Number(process.env.B_CHECKDELAY) || 60000);
+};
 
-// setInterval(() => {
-//   console.log('Checking for new comments...');
-//   listenForCommands();
-// }, Number(process.env.B_CHECKDELAY) || 60000);
-listenForCommands();
+const webServer = () => {
+  app.listen(process.env.EXPRESS_PORT || 3000, () => {
+    console.log(
+      `Doing magic in port ${process.env.EXPRESS_PORT || 3000}, Have fun!`
+    );
+  });
+};
+
+// Define Runtime
+if (!process.env.PROC_TYPE) {
+  console.log('No PROC_TYPE Defined! Probably Running Locally');
+  webServer();
+  pollReddit();
+} else if (process.env.PROC_TYPE === 'web') {
+  console.log('PROC_TYPE is web, Starting Web Server');
+  webServer();
+} else if (process.env.PROC_TYPE === 'worker') {
+  console.log('PROC_TYPE is worker, Starting Worker');
+  pollReddit();
+} else {
+  console.log('PROC_TYPE is invalid, Halting...');
+}
 
 console.log('Reddit Bot Started!');
