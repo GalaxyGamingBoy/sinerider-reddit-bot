@@ -74,7 +74,7 @@ const listenForCommands = () => {
     });
 };
 
-const addNewDailyLevel = (title: string, desc: string, url: string) => {
+const addNewDailyLevel = (title: string, desc: string, url: string, puzzleID: string) => {
   // Get Daily Level Sticky & Remove it
   r.getSubreddit(process.env.B_SUBREDDIT || '')
     .getSticky()
@@ -91,7 +91,15 @@ const addNewDailyLevel = (title: string, desc: string, url: string) => {
       text: `${desc}[Play it here](${url})`,
       subredditName: process.env.B_SUBREDDIT || '',
     })
-    .then(post => post.sticky());
+    .then(post => {
+      post.sticky();
+
+      // Upload the Post ID
+      airtableSetup('Config').create({
+        config_name: `reddit_postid_${puzzleID}`,
+        value: post.id,
+      });
+    });
 };
 
 const app = express();
@@ -127,12 +135,14 @@ app.post(
       if (
         publishingInfo.puzzleTitle &&
         publishingInfo.puzzleDescription &&
-        publishingInfo.puzzleURL
+        publishingInfo.puzzleURL &&
+        publishingInfo.id
       ) {
         addNewDailyLevel(
           publishingInfo.puzzleTitle,
           publishingInfo.puzzleDescription,
-          publishingInfo.puzzleURL
+          publishingInfo.puzzleURL,
+          publishingInfo.id
         );
       }
     }
