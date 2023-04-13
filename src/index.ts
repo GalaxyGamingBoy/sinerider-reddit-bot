@@ -169,11 +169,10 @@ app.post(
 
 const pollReddit = async () => {
   await getRepliedCommentIDs();
-  // setInterval(() => {
-  //   console.log('Checking for new comments...');
-  //   listenForCommands();
-  // }, Number(process.env.B_CHECKDELAY) || 60000);
-  listenForCommands();
+  setInterval(() => {
+    console.log('Checking for new comments...');
+    listenForCommands();
+  }, Number(process.env.B_CHECKDELAY) || 60000);
   console.log('Reddit Bot Started!');
 };
 
