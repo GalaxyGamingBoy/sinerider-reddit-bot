@@ -8,29 +8,33 @@ import https from 'node:https'
 import Snoowrap from 'snoowrap';
 import lzs from 'lz-string';
 
-const executeCommand = (comment: Snoowrap.Comment, url: string) => {
+// Check if the url is on the database
+const isURLCached = (id: string, expression: string) => {
+  return new Promise((resolve, reject) => {
+    airtableSetup('Leaderboard').select({ filterByFormula: `AND(level='${id}', expression='${expression}')`, maxRecords: 1 }).eachPage(
+      (records, fetchNextPage) => {
+        if (records.length == 0) {
+          resolve(false)
+        } else {
+          resolve(true)
+        }
+        fetchNextPage();
+      },
+      err => {
+        if (err) {
+          console.log(err);
+          return;
+        }
+      }
+    );
+  })
+}
+
+const executeCommand = async (comment: Snoowrap.Comment, url: string, id: string, expression: string) => {
   console.log('FOUND COMMENT' + comment.permalink);
-  let cached = true;
-
-  // Check if the url is on the database
-  airtableSetup('Leaderboard').select({ filterByFormula: `playURL = '${url}'`, maxRecords: 1 }).eachPage(
-    (records, fetchNextPage) => {
-      if (records.length > 0) {
-        comment.reply('Woops! Someone already submitted that solution to the leaderboards!')
-      } else {
-        cached = false
-      }
-      fetchNextPage();
-    },
-    err => {
-      if (err) {
-        console.log(err);
-        return;
-      }
-    }
-  );
-
+  const cached = await isURLCached(id, expression);
   // Send the level to the scoring server
+  console.log(cached)
   if (!cached) {
     axios
       .post(`${process.env.S_SCORINGSERVER}/score`, {
@@ -66,25 +70,29 @@ const executeCommand = (comment: Snoowrap.Comment, url: string) => {
           `Sinerider Scoring Server Error! For more diagnostics: ${e}`
         );
       });
+  } else {
+    comment.reply('Woops! Someone already submitted that solution to the leaderboards!')
   }
   console.log('REPLIED TO: ' + comment.permalink);
 }
 
-const getPuzzleByID = (id: string) => {
-  let puzzle;
-  airtableSetup('Puzzles').select({ filterByFormula: `id = '${id}'`, maxRecords: 1 }).eachPage(
-    (records, fetchNextPage) => {
-      puzzle = records[0]
-      fetchNextPage();
-    },
-    err => {
-      if (err) {
-        console.log(err);
-        return;
+const getPuzzleByID = async (id: string) => {
+  return new Promise((resolve, reject) => {
+    airtableSetup('Puzzles').select({ filterByFormula: `id = '${id.replace('\\', '')}'`, maxRecords: 1 }).eachPage(
+      (records, fetchNextPage) => {
+        records.forEach(r => {
+          resolve(r.get('puzzleURL'))
+        })
+        fetchNextPage();
+      },
+      err => {
+        if (err) {
+          console.log(err);
+          return;
+        }
       }
-    }
-  );
-  return puzzle;
+    );
+  })
 }
 
 const injectExpression = (domain, pData, expression) => {
@@ -95,7 +103,7 @@ const injectExpression = (domain, pData, expression) => {
   );
 };
 
-export const runCommand = (comment: Snoowrap.Comment) => {
+export const runCommand = async (comment: Snoowrap.Comment) => {
   const splittedComment = comment.body.split(' ')
   let puzzleID: string
   let expression: string
@@ -104,17 +112,16 @@ export const runCommand = (comment: Snoowrap.Comment) => {
     // On Reddit when in the start of a line will add a \ to the # symbol
     if (val == '#sinerider' || val == '\\#sinerider') {
       puzzleID = splittedComment[index + 1]
-      expression = splittedComment[index + 2]
+      expression = splittedComment[index + 2].replace('\\', '')
     }
   })
 
   // Make sure both values are not undefined
   if (puzzleID && expression) {
-    const puzzleURL = getPuzzleByID(puzzleID).get('puzzleURL')
-    const puzzleURLSplitted = puzzleURL.split("?");
+    const puzzleURL: string = await getPuzzleByID(puzzleID) as string
+    const puzzleURLSplitted = puzzleURL.split('?');
     const domainPuzzleURL = puzzleURLSplitted[0];
     const puzzleData = puzzleURLSplitted[1];
-
-    executeCommand(comment, injectExpression(domainPuzzleURL, puzzleData, expression))
+    executeCommand(comment, injectExpression(domainPuzzleURL, puzzleData, expression), puzzleID, expression)
   }
 }

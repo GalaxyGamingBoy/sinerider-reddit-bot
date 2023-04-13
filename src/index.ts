@@ -27,27 +27,32 @@ const r = new Snoowrap({
 // eslint-disable-next-line prefer-const
 let repliedComments: Set<String> = new Set();
 
-const listenForCommands = () => {
-  airtableSetup('RedditCheckedID')
-    .select()
-    .eachPage(
-      (records, fetchNextPage) => {
-        records.forEach(record => {
-          // Add the id of the replied comment
-          if (!repliedComments.has(record.get('id').toString())) {
-            repliedComments.add(record.get('id').toString());
+const getRepliedCommentIDs = () => {
+  return new Promise((resolve, reject) => {
+    airtableSetup('RedditCheckedID')
+      .select()
+      .eachPage(
+        (records, fetchNextPage) => {
+          records.forEach(record => {
+            // Add the id of the replied comment
+            if (!repliedComments.has(record.get('id').toString())) {
+              repliedComments.add(record.get('id').toString());
+            }
+          });
+          fetchNextPage();
+          resolve('Done');
+        },
+        err => {
+          if (err) {
+            console.log(err);
+            return;
           }
-        });
-        fetchNextPage();
-      },
-      err => {
-        if (err) {
-          console.log(err);
-          return;
         }
-      }
-    );
+      );
+  });
+};
 
+const listenForCommands = async () => {
   // Get the new comments in the specified subreddit
   r.getSubreddit(process.env.B_SUBREDDIT || '')
     .getNewComments()
@@ -59,7 +64,6 @@ const listenForCommands = () => {
           comment.body.indexOf('#sinerider') !== -1 &&
           !repliedComments.has(comment.id)
         ) {
-          console.log(comment.body);
           // eslint-disable-next-line prettier/prettier
           airtableSetup('RedditCheckedID').create({ id: comment.id });
           repliedComments.add(comment.id);
@@ -69,7 +73,7 @@ const listenForCommands = () => {
     })
     .catch(e => {
       console.log(
-        'Connection failed... Is reddit down? Further analysis: ' + e
+        'Connection failed... Is reddit down? Further analysis: ' + e.stack
       );
     });
 };
@@ -93,17 +97,25 @@ const addNewDailyLevel = (
   r.getSubreddit(process.env.B_SUBREDDIT || '')
     .submitSelfpost({
       title: title,
-      text: `${desc}[Play it here](${url})`,
+      text: `${desc}  [Play it here](${url})`,
       subredditName: process.env.B_SUBREDDIT || '',
     })
     .then(post => {
       post.sticky();
 
       // Upload the Post ID
-      airtableSetup('Config').create({
-        config_name: `reddit_postid_${puzzleID}`,
-        value: post.id,
-      });
+      airtableSetup('Config').create(
+        {
+          config_name: `reddit_postid_${puzzleID}`,
+          value: post.id.toString(),
+        },
+        err => {
+          if (err) {
+            console.log(err);
+            return;
+          }
+        }
+      );
     });
 };
 
@@ -155,11 +167,14 @@ app.post(
   }
 );
 
-const pollReddit = () => {
-  setInterval(() => {
-    console.log('Checking for new comments...');
-    listenForCommands();
-  }, Number(process.env.B_CHECKDELAY) || 60000);
+const pollReddit = async () => {
+  await getRepliedCommentIDs();
+  // setInterval(() => {
+  //   console.log('Checking for new comments...');
+  //   listenForCommands();
+  // }, Number(process.env.B_CHECKDELAY) || 60000);
+  listenForCommands();
+  console.log('Reddit Bot Started!');
 };
 
 const webServer = () => {
@@ -184,5 +199,3 @@ if (!process.env.PROC_TYPE) {
 } else {
   console.log('PROC_TYPE is invalid, Halting...');
 }
-
-console.log('Reddit Bot Started!');
