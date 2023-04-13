@@ -112,7 +112,7 @@ export const runCommand = async (comment: Snoowrap.Comment) => {
   splittedComment.forEach((val, index) => {
     // On Reddit when in the start of a line will add a \ to the # symbol
     if (val == '#sinerider' || val == '\\#sinerider') {
-      puzzleID = splittedComment[index + 1] || ''
+      puzzleID = splittedComment[index + 1].replace('\\', '') || ''
       expression = splittedComment[index + 2].replace('\\', '') || ''
     }
   })
