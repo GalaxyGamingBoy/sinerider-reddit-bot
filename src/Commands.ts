@@ -18,6 +18,8 @@ const isURLCached = (id: string, expression: string) => {
         } else {
           resolve(true)
         }
+        console.log(expression)
+        console.log(id)
         fetchNextPage();
       },
       err => {
