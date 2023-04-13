@@ -34,7 +34,6 @@ const executeCommand = async (comment: Snoowrap.Comment, url: string, id: string
   console.log('FOUND COMMENT' + comment.permalink);
   const cached = await isURLCached(id, expression);
   // Send the level to the scoring server
-  console.log(cached)
   if (!cached) {
     axios
       .post(`${process.env.S_SCORINGSERVER}/score`, {
