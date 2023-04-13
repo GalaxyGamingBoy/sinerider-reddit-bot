@@ -12,7 +12,7 @@ import bodyParser from 'body-parser';
 // eslint-disable-next-line prettier/prettier
 import { airtableSetup } from './AirtableIntegration';
 // eslint-disable-next-line prettier/prettier
-import { RegExpLib } from './RegExpLib';
+import lzs from "lz-string"
 
 dotenv.config();
 
@@ -74,12 +74,7 @@ const listenForCommands = () => {
     });
 };
 
-const addNewDailyLevel = (
-  title: string,
-  body: string,
-  levelName: string,
-  url: string
-) => {
+const addNewDailyLevel = (title: string, desc: string, url: string) => {
   // Get Daily Level Sticky & Remove it
   r.getSubreddit(process.env.B_SUBREDDIT || '')
     .getSticky()
@@ -92,8 +87,8 @@ const addNewDailyLevel = (
   // Post New Daily Level Sticky
   r.getSubreddit(process.env.B_SUBREDDIT || '')
     .submitSelfpost({
-      title: `Daily Level | ${title} | ${levelName}`,
-      text: `${body}  [Play it here](${url})`,
+      title: title,
+      text: `${desc}[Play it here](${url})`,
       subredditName: process.env.B_SUBREDDIT || '',
     })
     .then(post => post.sticky());
@@ -118,22 +113,28 @@ passport.use(
 );
 
 app.post(
-  '/postDaily',
+  '/publishLevel',
   // eslint-disable-next-line prettier/prettier
   passport.authenticate('basic', { session: false }),
   (req, res) => {
-    if (
-      RegExpLib.URL.regexp.test(req.body.url) &&
-      req.body.body &&
-      req.body.title &&
-      req.body.levelName
-    ) {
-      addNewDailyLevel(
-        req.body.title,
-        req.body.body,
-        req.body.levelName,
-        req.body.url
+    // Verify that there is publishing info
+    if (req.query.publishingInfo) {
+      const publishingInfo = JSON.parse(
+        lzs.decompressFromBase64(req.query.publishingInfo.toString())
       );
+
+      // Verify that the publishing info is valid
+      if (
+        publishingInfo.puzzleTitle &&
+        publishingInfo.puzzleDescription &&
+        publishingInfo.puzzleURL
+      ) {
+        addNewDailyLevel(
+          publishingInfo.puzzleTitle,
+          publishingInfo.puzzleDescription,
+          publishingInfo.puzzleURL
+        );
+      }
     }
     res.status(200).end('OK!');
   }
