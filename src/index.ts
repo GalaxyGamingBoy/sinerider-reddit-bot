@@ -137,6 +137,10 @@ passport.use(
   })
 );
 
+app.get('/', (req, res) => {
+  res.status(200).end('I am alive!');
+});
+
 app.post(
   '/publishLevel',
   // eslint-disable-next-line prettier/prettier
