@@ -142,7 +142,7 @@ app.get('/', (req, res) => {
 });
 
 app.post(
-  '/publishLevel',
+  '/publishPuzzle',
   // eslint-disable-next-line prettier/prettier
   passport.authenticate('basic', { session: false }),
   (req, res) => {
