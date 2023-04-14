@@ -7,6 +7,7 @@ import { airtableSetup } from './AirtableIntegration';
 import https from 'node:https'
 import Snoowrap from 'snoowrap';
 import lzs from 'lz-string';
+import { Messages } from './Messages';
 
 // Check if the url is on the database
 const isURLCached = (id: string, expression: string) => {
@@ -43,23 +44,23 @@ const executeCommand = async (comment: Snoowrap.Comment, url: string, id: string
           httpsAgent: new https.Agent({ rejectUnauthorized: false })
         })
       .then(response => {
-        // If there is no gameplay, reply without it
-        if (response.data.gameplay === '') {
-          replyWithoutGameplay(comment, response.data.level, response.data.T, response.data.charCount, url)
-        } else {
-          replyWithGameplay(comment, response.data.level, response.data.T, response.data.charCount, url, response.data.gameplay)
-        }
+        if (response.data.time) {
+          // If there is no gameplay, reply without it
+          replyWithGameplay(comment, response.data.level, response.data.time, response.data.charCount, url, response.data.gameplay)
 
-        // Upload Leaderboard data
-        airtableSetup('Leaderboard').create({
-          'expression': response.data.expression,
-          'time': response.data.T,
-          'level': response.data.level,
-          'playURL': url,
-          'charCount': response.data.charCount,
-          'gameplay': response.data.gameplay,
-          'player': comment.author.name
-        });
+          // Upload Leaderboard data
+          airtableSetup('Leaderboard').create({
+            'expression': expression,
+            'time': response.data.time,
+            'level': response.data.level,
+            'playURL': url,
+            'charCount': response.data.charCount,
+            'gameplay': response.data.gameplay,
+            'player': comment.author.name
+          });
+        } else {
+          comment.reply(Messages.timeOut)
+        }
       })
       .catch(e => {
         comment.reply(
@@ -70,7 +71,7 @@ const executeCommand = async (comment: Snoowrap.Comment, url: string, id: string
         );
       });
   } else {
-    comment.reply('Woops! Someone already submitted that solution to the leaderboards!')
+    comment.reply(Messages.duplicateHighScore)
   }
   console.log('REPLIED TO: ' + comment.permalink);
 }
@@ -122,5 +123,7 @@ export const runCommand = async (comment: Snoowrap.Comment) => {
     const domainPuzzleURL = puzzleURLSplitted[0];
     const puzzleData = puzzleURLSplitted[1];
     executeCommand(comment, injectExpression(domainPuzzleURL, puzzleData, expression), puzzleID, expression)
+  } else {
+    console.log(`Comment did not match the format. Expression: ${expression}, Puzzle ID: ${puzzleID}`)
   }
 }

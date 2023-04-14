@@ -1,18 +1,5 @@
 import { Comment } from 'snoowrap';
-
-export const replyWithoutGameplay = (
-  comment: Comment,
-  levelName: string,
-  T: string,
-  charCount: string,
-  url: string
-) => {
-  comment
-    .reply(
-      `Hooray, Level Scored! Here is your stats: Level: ${levelName}, T: ${T}, CharCount: ${charCount}. Play it [here](${url})`
-    )
-    .catch(err => console.log(`Reply Error: ${err}`));
-};
+import { Messages } from './Messages';
 
 export const replyWithGameplay = (
   comment: Comment,
@@ -24,7 +11,13 @@ export const replyWithGameplay = (
 ) => {
   comment
     .reply(
-      `Hooray, Level Scored! Here is your stats: Level: ${levelName}, T: ${T}, CharCount: ${charCount}. Watch it [here](${gameplay}) or play it [here](${url})`
+      Messages.response(
+        Math.floor(Math.random() * 4),
+        levelName,
+        T,
+        charCount,
+        gameplay
+      )
     )
     .catch(err => console.log(`Reply Error: ${err}`));
 };
