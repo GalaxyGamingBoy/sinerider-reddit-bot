@@ -2,7 +2,7 @@
 /* eslint-disable prettier/prettier */
 import { RegExpLib } from './RegExpLib';
 import axios from 'axios';
-import { replyWithGameplay, replyWithoutGameplay } from './Replies';
+import { replyWithGameplay } from './Replies';
 import { airtableSetup } from './AirtableIntegration';
 import https from 'node:https'
 import Snoowrap from 'snoowrap';
