@@ -18,8 +18,6 @@ const isURLCached = (id: string, expression: string) => {
         } else {
           resolve(true)
         }
-        console.log(expression)
-        console.log(id)
         fetchNextPage();
       },
       err => {
@@ -118,7 +116,7 @@ export const runCommand = async (comment: Snoowrap.Comment) => {
   })
 
   // Make sure both values are not undefined
-  if (puzzleID && expression) {
+  if (puzzleID && expression && RegExpLib.EXPRESSION.regexp.test(expression)) {
     const puzzleURL: string = await getPuzzleByID(puzzleID) as string
     const puzzleURLSplitted = puzzleURL.split('?');
     const domainPuzzleURL = puzzleURLSplitted[0];
