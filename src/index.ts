@@ -177,10 +177,8 @@ const pollReddit = async () => {
 };
 
 const webServer = () => {
-  app.listen(process.env.EXPRESS_PORT || 3000, () => {
-    console.log(
-      `Doing magic in port ${process.env.EXPRESS_PORT || 3000}, Have fun!`
-    );
+  app.listen(process.env.PORT || 3000, () => {
+    console.log(`Doing magic in port ${process.env.PORT || 3000}, Have fun!`);
   });
 };
 
