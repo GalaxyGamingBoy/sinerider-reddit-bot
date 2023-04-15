@@ -12,7 +12,7 @@ import bodyParser from 'body-parser';
 // eslint-disable-next-line prettier/prettier
 import { airtableSetup } from './AirtableIntegration';
 // eslint-disable-next-line prettier/prettier
-import lzs from "lz-string"
+import lzs from 'lz-string'
 
 dotenv.config();
 

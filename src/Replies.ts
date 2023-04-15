@@ -1,5 +1,5 @@
 import { Comment } from 'snoowrap';
-import { Messages } from './Messages';
+import { successResponse } from './Messages';
 
 export const replyWithGameplay = (
   comment: Comment,
@@ -11,7 +11,7 @@ export const replyWithGameplay = (
 ) => {
   comment
     .reply(
-      Messages.response(
+      successResponse(
         Math.floor(Math.random() * 4),
         levelName,
         T,

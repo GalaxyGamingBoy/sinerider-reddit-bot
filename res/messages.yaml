@@ -1,0 +1,9 @@
+# This strings were provided by Toby
+# https://github.com/developedbytoby/sinerider-twitter-bot/pull/10/commits/dcd856d5ac1c6d01952dd2c5d68013e3001eaa51#diff-568470d013cd12e4f388206520da39ab9a4e4c3c6b95846cbc281abc1ba3c959R230-R236
+duplicateHighScore: "Sorry, someone's already submitted that solution to the leaderboards — try again with a different answer!"
+timeOut: 'Sorry, that submission takes longer than 30 seconds to evaluate, so we had to disqualify it. :( Try again with a new solution!'
+scoringSuccess:
+  - "Woohoo!! You're on the leaderboard for {puzzleId} with a time of {time} (vroom vroom!) and a character count of {charCount}! Check out this super cool video of your run: {gameplay}!"
+  - "🥳🥳🥳 You're on the {puzzleId} leaderboard with a super speedy time of {time} and a character count of {charCount}! We even made this groovy video of your run: {gameplay}!"
+  - "Cowabunga! You've made it onto the {puzzleId} leaderboard! You got an unbelievably fast time of {time} (WOW!) and a character count of {charCount}! There's even a super cool video of your run: {gameplay}"
+  - "Grooooovy! You're on the leaderboard for {puzzleId} with a time of {time} (speedy!!) and a character count of {charCount}! Also, we made you an *awesome* video of your run: {gameplay}"

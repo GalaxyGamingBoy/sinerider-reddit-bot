@@ -7,7 +7,7 @@ import { airtableSetup } from './AirtableIntegration';
 import https from 'node:https'
 import Snoowrap from 'snoowrap';
 import lzs from 'lz-string';
-import { Messages } from './Messages';
+import { strings } from './Messages';
 
 // Check if the url is on the database
 const isURLCached = (id: string, expression: string) => {
@@ -59,7 +59,7 @@ const executeCommand = async (comment: Snoowrap.Comment, url: string, id: string
             'player': comment.author.name
           });
         } else {
-          comment.reply(Messages.timeOut)
+          comment.reply(strings.timeOut)
         }
       })
       .catch(e => {
@@ -71,7 +71,7 @@ const executeCommand = async (comment: Snoowrap.Comment, url: string, id: string
         );
       });
   } else {
-    comment.reply(Messages.duplicateHighScore)
+    comment.reply(strings.duplicateHighScore)
   }
   console.log('REPLIED TO: ' + comment.permalink);
 }
