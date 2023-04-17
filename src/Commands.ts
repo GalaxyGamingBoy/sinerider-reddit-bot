@@ -45,10 +45,10 @@ const removeMarkdownSpecial = (str: string) => {
     str = replaceAll(str, '\\_', '_')
     str = replaceAll(str, '\\*', '*')
     str = replaceAll(str, '\\\\', '\\')
+    return str
   } else {
     console.log(`String to parse: ${str}`)
   }
-  return str
 }
 
 const executeCommand = async (comment: Snoowrap.Comment, url: string, id: string, expression: string) => {
