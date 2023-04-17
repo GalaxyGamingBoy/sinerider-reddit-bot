@@ -60,6 +60,14 @@ const executeCommand = async (comment: Snoowrap.Comment, url: string, id: string
           });
         } else {
           comment.reply(strings.timeOut)
+          airtableSetup('Leaderboard').create({
+            'expression': expression,
+            'level': response.data.level,
+            'playURL': url,
+            'charCount': response.data.charCount,
+            'gameplay': response.data.gameplay,
+            'player': comment.author.name
+          });
         }
       })
       .catch(e => {
