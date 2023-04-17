@@ -39,11 +39,15 @@ const replaceAll = (str: string, toReplace: string, replacedWith: string) => {
 }
 
 const removeMarkdownSpecial = (str: string) => {
-  str = replaceAll(str, '\\^', '^')
-  str = replaceAll(str, '\\`', '`')
-  str = replaceAll(str, '\\_', '_')
-  str = replaceAll(str, '\\*', '*')
-  str = replaceAll(str, '\\\\', '\\')
+  if (str) {
+    str = replaceAll(str, '\\^', '^')
+    str = replaceAll(str, '\\`', '`')
+    str = replaceAll(str, '\\_', '_')
+    str = replaceAll(str, '\\*', '*')
+    str = replaceAll(str, '\\\\', '\\')
+  } else {
+    console.log(`String to parse: ${str}`)
+  }
   return str
 }
 
