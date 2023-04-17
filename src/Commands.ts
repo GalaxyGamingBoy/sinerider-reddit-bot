@@ -31,6 +31,22 @@ const isURLCached = (id: string, expression: string) => {
   })
 }
 
+const replaceAll = (str: string, toReplace: string, replacedWith: string) => {
+  while (str.includes(toReplace)) {
+    str = str.replace(toReplace, replacedWith)
+  }
+  return str
+}
+
+const removeMarkdownSpecial = (str: string) => {
+  str = replaceAll(str, '\\^', '^')
+  str = replaceAll(str, '\\`', '`')
+  str = replaceAll(str, '\\_', '_')
+  str = replaceAll(str, '\\*', '*')
+  str = replaceAll(str, '\\\\', '\\')
+  return str
+}
+
 const executeCommand = async (comment: Snoowrap.Comment, url: string, id: string, expression: string) => {
   console.log('FOUND COMMENT' + comment.permalink);
   const cached = await isURLCached(id, expression);
@@ -119,8 +135,8 @@ export const runCommand = async (comment: Snoowrap.Comment) => {
   splittedComment.forEach((val, index) => {
     // On Reddit when in the start of a line will add a \ to the # symbol
     if (val == '#sinerider' || val == '\\#sinerider') {
-      puzzleID = splittedComment[index + 1].replace('\\', '') || ''
-      expression = splittedComment[index + 2].replace('\\', '') || ''
+      puzzleID = removeMarkdownSpecial(splittedComment[index + 1])
+      expression = removeMarkdownSpecial(splittedComment[index + 2])
     }
   })
 
@@ -130,6 +146,7 @@ export const runCommand = async (comment: Snoowrap.Comment) => {
     const puzzleURLSplitted = puzzleURL.split('?');
     const domainPuzzleURL = puzzleURLSplitted[0];
     const puzzleData = puzzleURLSplitted[1];
+    console.log(`Expression: ${expression}, Puzzle ID: ${puzzleID}`)
     executeCommand(comment, injectExpression(domainPuzzleURL, puzzleData, expression), puzzleID, expression)
   } else {
     console.log(`Comment did not match the format. Expression: ${expression}, Puzzle ID: ${puzzleID}`)
