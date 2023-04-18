@@ -7,7 +7,7 @@ duplicateHighScore:
   - 'Uh oh, This answer has already been found on the leaderboard — try again with a different answer!'
 timeOut:
   - 'Sorry, that submission takes longer than 30 seconds to evaluate, so we had to disqualify it. :( Try again with a new solution!'
-  - 'Woops! Your submission exceeds the 30 second time limit so we couldn't rate it :/ Please try again with another answer!'
+  - "Woops! Your submission exceeds the 30 second time limit so we could not rate it. Please try again with another answer!"
   - 'Your response took over 30 seconds to rate, so he had to disqualify it :( Please, try again a different answer!'
   - '⌛ Time exceeds the 30 seconds limit 😢 Try again with a new solution!' 
 # {puzzleID}: The Puzzle ID
