@@ -1,7 +1,19 @@
-# This strings were provided by Toby
+# This strings were provided by Toby and edited a bit by Marios
 # https://github.com/developedbytoby/sinerider-twitter-bot/pull/10/commits/dcd856d5ac1c6d01952dd2c5d68013e3001eaa51#diff-568470d013cd12e4f388206520da39ab9a4e4c3c6b95846cbc281abc1ba3c959R230-R236
-duplicateHighScore: "Sorry, someone's already submitted that solution to the leaderboards — try again with a different answer!"
-timeOut: 'Sorry, that submission takes longer than 30 seconds to evaluate, so we had to disqualify it. :( Try again with a new solution!'
+duplicateHighScore: 
+  - "Sorry, someone's already submitted that solution to the leaderboards — try again with a different answer!"
+  - 'Woops! This answer already is submitted! Try again with a different solution :)'
+  - '😓 This solution has already been rated! You are free to try again with a different solution!'
+  - 'Uh oh, This answer has already been found on the leaderboard — try again with a different answer!'
+timeOut:
+  - 'Sorry, that submission takes longer than 30 seconds to evaluate, so we had to disqualify it. :( Try again with a new solution!'
+  - 'Woops! Your submission exceeds the 30 second time limit so we couldn't rate it :/ Please try again with another answer!'
+  - 'Your response took over 30 seconds to rate, so he had to disqualify it :( Please, try again a different answer!'
+  - '⌛ Time exceeds the 30 seconds limit 😢 Try again with a new solution!' 
+# {puzzleID}: The Puzzle ID
+# {time}: The time it took to complete
+# {charCount}: The expression Char Count!
+# {gameplay}: The URL of the video
 scoringSuccess:
   - "Woohoo!! You're on the leaderboard for {puzzleId} with a time of {time} (vroom vroom!) and a character count of {charCount}! Check out this super cool video of your run: {gameplay}!"
   - "🥳🥳🥳 You're on the {puzzleId} leaderboard with a super speedy time of {time} and a character count of {charCount}! We even made this groovy video of your run: {gameplay}!"

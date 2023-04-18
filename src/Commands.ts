@@ -79,7 +79,7 @@ const executeCommand = async (comment: Snoowrap.Comment, url: string, id: string
             'player': comment.author.name
           });
         } else {
-          comment.reply(strings.timeOut)
+          comment.reply(strings.timeOut[Math.floor(Math.random() * 4)])
           airtableSetup('Leaderboard').create({
             'expression': expression,
             'level': response.data.level,
@@ -99,7 +99,7 @@ const executeCommand = async (comment: Snoowrap.Comment, url: string, id: string
         );
       });
   } else {
-    comment.reply(strings.duplicateHighScore)
+    comment.reply(strings.duplicateHighScore[Math.floor(Math.random() * 4)])
   }
   console.log('REPLIED TO: ' + comment.permalink);
 }
