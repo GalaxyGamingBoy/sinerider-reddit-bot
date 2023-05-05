@@ -100,14 +100,27 @@ const addNewDailyLevel = (
       text: `${desc}  [Play it here](${url})`,
       subredditName: process.env.B_SUBREDDIT || '',
     })
-    .then(post => {
+    .then(async post => {
       post.sticky();
 
       // Upload the Post ID
       airtableSetup('Config').create(
         {
           config_name: `reddit_postid_${puzzleID}`,
-          value: post.id.toString(),
+          value: await post.id,
+        },
+        err => {
+          if (err) {
+            console.log(err);
+            return;
+          }
+        }
+      );
+
+      airtableSetup('Config').create(
+        {
+          config_name: `reddit_posturl_${puzzleID}`,
+          value: await post.url,
         },
         err => {
           if (err) {
@@ -117,6 +130,8 @@ const addNewDailyLevel = (
         }
       );
     });
+
+  console.log('Uploaded Daily Level!');
 };
 
 const app = express();
