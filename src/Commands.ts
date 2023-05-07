@@ -145,7 +145,7 @@ export const runCommand = async (comment: Snoowrap.Comment) => {
   })
 
   // Make sure both values are not undefined
-  if (puzzleID && expression && RegExpLib.EXPRESSION.regexp.test(expression)) {
+  if (puzzleID && expression) {
     const puzzleURL: string = await getPuzzleByID(puzzleID) as string
     const puzzleURLSplitted = puzzleURL.split('?');
     const domainPuzzleURL = puzzleURLSplitted[0];
