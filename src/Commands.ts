@@ -45,6 +45,7 @@ const removeMarkdownSpecial = (str: string) => {
     str = replaceAll(str, '\\_', '_')
     str = replaceAll(str, '\\*', '*')
     str = replaceAll(str, '\\\\', '\\')
+    str = replaceAll(str, '`', '')
     return str
   } else {
     console.log(`String to parse: ${str}`)
@@ -151,7 +152,7 @@ export const runCommand = async (comment: Snoowrap.Comment) => {
     const domainPuzzleURL = puzzleURLSplitted[0];
     const puzzleData = puzzleURLSplitted[1];
     console.log(`Expression: ${expression}, Puzzle ID: ${puzzleID}`)
-    executeCommand(comment, injectExpression(domainPuzzleURL, puzzleData, expression), puzzleID, expression)
+    // executeCommand(comment, injectExpression(domainPuzzleURL, puzzleData, expression), puzzleID, expression)
   } else {
     console.log(`Comment did not match the format. Expression: ${expression}, Puzzle ID: ${puzzleID}`)
   }
