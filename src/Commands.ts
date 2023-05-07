@@ -152,7 +152,7 @@ export const runCommand = async (comment: Snoowrap.Comment) => {
     const domainPuzzleURL = puzzleURLSplitted[0];
     const puzzleData = puzzleURLSplitted[1];
     console.log(`Expression: ${expression}, Puzzle ID: ${puzzleID}`)
-    // executeCommand(comment, injectExpression(domainPuzzleURL, puzzleData, expression), puzzleID, expression)
+    executeCommand(comment, injectExpression(domainPuzzleURL, puzzleData, expression), puzzleID, expression)
   } else {
     console.log(`Comment did not match the format. Expression: ${expression}, Puzzle ID: ${puzzleID}`)
   }
