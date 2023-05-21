@@ -2,18 +2,19 @@
 import * as dotenv from 'dotenv';
 import Snoowrap from 'snoowrap';
 // eslint-disable-next-line prettier/prettier
-import { runCommand } from './Commands';
+import {runCommand} from './Commands';
 import passport from 'passport';
 // eslint-disable-next-line prettier/prettier
-import { BasicStrategy } from 'passport-http';
+import {BasicStrategy} from 'passport-http';
 import express from 'express';
 import CORS from 'cors';
 import bodyParser from 'body-parser';
 // eslint-disable-next-line prettier/prettier
-import { airtableSetup } from './AirtableIntegration';
+import {airtableSetup} from './AirtableIntegration';
 // eslint-disable-next-line prettier/prettier
-import lzs from 'lz-string'
+import lzs from 'lz-string';
 
+const async = require('async');
 dotenv.config();
 
 const r = new Snoowrap({
@@ -25,18 +26,58 @@ const r = new Snoowrap({
 });
 
 // eslint-disable-next-line prefer-const
-let repliedComments: Set<String> = new Set();
+export let repliedComments: Set<String> = new Set();
+// eslint-disable-next-line prefer-const
+export let repliedCommentsIDs: Map<string, string> = new Map();
+// eslint-disable-next-line prefer-const
+export let notRepliedComments: Set<String> = new Set();
 
 const getRepliedCommentIDs = () => {
   return new Promise((resolve, reject) => {
     airtableSetup('RedditCheckedID')
-      .select()
+      .select({filterByFormula: '{completed}', fields: ['id']})
       .eachPage(
         (records, fetchNextPage) => {
           records.forEach(record => {
             // Add the id of the replied comment
             if (!repliedComments.has(record.get('id').toString())) {
               repliedComments.add(record.get('id').toString());
+              repliedCommentsIDs.set(
+                record.get('id').toString(),
+                record.getId()
+              );
+            }
+          });
+          fetchNextPage();
+          resolve('Done');
+        },
+        err => {
+          if (err) {
+            console.log(err);
+            return;
+          }
+        }
+      );
+  });
+};
+
+const getNotRepliedCommentIDs = () => {
+  return new Promise((resolve, reject) => {
+    airtableSetup('RedditCheckedID')
+      .select({
+        filterByFormula: 'AND(NOT({completed}), {tries} < 3)',
+        fields: ['id'],
+      })
+      .eachPage(
+        (records, fetchNextPage) => {
+          records.forEach(record => {
+            // Add the id of the replied comment
+            if (!notRepliedComments.has(record.get('id').toString())) {
+              notRepliedComments.add(record.get('id').toString());
+              repliedCommentsIDs.set(
+                record.get('id').toString(),
+                record.getId()
+              );
             }
           });
           fetchNextPage();
@@ -58,15 +99,21 @@ const listenForCommands = async () => {
     .getNewComments()
     .then(newComments => {
       // Get All Valid Comments
-      newComments.forEach(comment => {
+      async.forEachOf(newComments, comment => {
         // If the command body includes a handler then push it to `newValidComments`
         if (
           comment.body.indexOf('#sinerider') !== -1 &&
           !repliedComments.has(comment.id)
         ) {
           // eslint-disable-next-line prettier/prettier
-          airtableSetup('RedditCheckedID').create({ id: comment.id });
-          repliedComments.add(comment.id);
+          if (!notRepliedComments.has(comment.id)) {
+            airtableSetup('RedditCheckedID')
+              .create({id: comment.id, tries: 0})
+              .then(record => {
+                repliedComments.add(comment.id);
+                repliedCommentsIDs.set(comment.id, record.getId());
+              });
+          }
           runCommand(comment);
         }
       });
@@ -159,7 +206,7 @@ app.get('/', (req, res) => {
 app.post(
   '/publishPuzzle',
   // eslint-disable-next-line prettier/prettier
-  passport.authenticate('basic', { session: false }),
+  passport.authenticate('basic', {session: false}),
   (req, res) => {
     // Verify that there is publishing info
     if (req.query.publishingInfo) {
@@ -188,6 +235,8 @@ app.post(
 
 const pollReddit = async () => {
   await getRepliedCommentIDs();
+  await getNotRepliedCommentIDs();
+
   setInterval(() => {
     console.log('Checking for new comments...');
     listenForCommands();
