@@ -14,8 +14,8 @@ import {airtableSetup} from './AirtableIntegration';
 // eslint-disable-next-line prettier/prettier
 import lzs from 'lz-string';
 import metrics from './metrics';
-import responseTime from "response-time"
-import { Request, Response } from "express";
+import responseTime from 'response-time';
+import {Request, Response} from 'express';
 
 const async = require('async');
 dotenv.config();
@@ -202,16 +202,19 @@ passport.use(
   })
 );
 
-app.use(responseTime(function (req: Request, res: Response, time) {
-  const stat = (req.method + '/' + req.url.split('/')[1]).toLowerCase()
-    .replace(/[:.]/g, '')
-    .replace(/\//g, '_')
-  const httpCode = res.statusCode
-  const timingStatKey = `http.response.${stat}`
-  const codeStatKey = `http.response.${stat}.${httpCode}`
-  metrics.timing(timingStatKey, time)
-  metrics.increment(codeStatKey, 1)
-}));
+app.use(
+  responseTime((req: Request, res: Response, time) => {
+    const stat = (req.method + '/' + req.url.split('/')[1])
+      .toLowerCase()
+      .replace(/[:.]/g, '')
+      .replace(/\//g, '_');
+    const httpCode = res.statusCode;
+    const timingStatKey = `http.response.${stat}`;
+    const codeStatKey = `http.response.${stat}.${httpCode}`;
+    metrics.timing(timingStatKey, time);
+    metrics.increment(codeStatKey, 1);
+  })
+);
 
 app.get('/', (req, res) => {
   res.status(200).end('I am alive!');
