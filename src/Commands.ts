@@ -9,6 +9,7 @@ import Snoowrap from 'snoowrap';
 import lzs from 'lz-string';
 import {strings} from './Messages';
 import {repliedComments, repliedCommentsIDs} from '.';
+import metrics from './metrics';
 // Check if the url is on the database
 const isURLCached = (id: string, expression: string) => {
   return new Promise((resolve, reject) => {
@@ -91,6 +92,7 @@ const executeCommand = async (
   id: string,
   expression: string
 ) => {
+  metrics.increment('command.execute.attempt', 1);
   console.log('FOUND COMMENT' + comment.permalink);
   const cached = await isURLCached(id, expression);
 
@@ -163,6 +165,7 @@ const executeCommand = async (
             );
           }
         } else {
+          metrics.increment('command.execute.error', 1);
           comment.reply(
             'Oh no! An error occured with the Scoring Server Connection!  You will need to comment again to retry'
           );

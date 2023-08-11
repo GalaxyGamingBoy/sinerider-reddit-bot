@@ -251,10 +251,12 @@ app.post(
 );
 
 const pollReddit = async () => {
+  metrics.increment('worker.poll.start', 1);
   await getRepliedCommentIDs();
   await getNotRepliedCommentIDs();
 
   setInterval(() => {
+    metrics.increment('worker.poll.increment', 1);
     console.log('Checking for new comments...');
     listenForCommands();
   }, Number(process.env.B_CHECKDELAY) || 60000);
